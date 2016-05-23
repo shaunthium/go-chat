@@ -17,15 +17,28 @@ func (c *MainController) Create() {
 		sessName := c.GetString("name")
 		sessPass := c.GetString("password")
 		c.SetSession(sessName, sessPass)
-		c.Redirect("/room/"+sessPass, 302)
+		c.Redirect("/room/"+sessName, 302)
 	}
 }
 
 func (c *MainController) Join() {
 	c.TplName = "join.tpl"
+
+	if c.Ctx.Input.Method() == "POST" {
+		sessName := c.GetString("name")
+		sessPass := c.GetString("password")
+		c.SetSession(sessName, sessPass)
+		c.Redirect("/room/"+sessName, 302)
+	}
 }
 
 func (c *MainController) Room() {
 	c.TplName = "room.tpl"
-	c.Data["Pass"] = c.Ctx.Input.Param(":id")
+
+	roomName := c.Ctx.Input.Param(":id")
+	sess := c.GetSession(roomName)
+	if sess == nil {
+		c.Redirect("/", 302)
+	}
+	c.Data["Pass"] = roomName
 }
