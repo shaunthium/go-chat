@@ -7,8 +7,7 @@
   </head>
 
   <body>
-    <form>
-      
-    </form>
+    <a href="/create"><button>Create Room</button></a>
+    <a href="/join"><button>Join Room</button></a>
   </body>
 </html>
