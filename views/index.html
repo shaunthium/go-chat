@@ -1,0 +1,12 @@
+{{template "base/base.html" .}}
+{{define "head"}}
+  <title>Go-Chat!</title>
+{{end}}
+{{define "body"}}
+  <div class="container-fluid text-center">
+    <div id="div-index">
+      <a class="btn btn-primary" href="/create">Create Room</a>
+      <a class="btn btn-primary" href="/join">Join Room</a>
+    </div>
+  </div>
+{{end}}

@@ -11,7 +11,7 @@ type MainController struct {
 }
 
 func (controller *MainController) Get() {
-	controller.TplName = "index.tpl"
+	controller.TplName = "index.html"
 }
 
 func (controller *MainController) Create() {
@@ -37,7 +37,7 @@ func (controller *MainController) Join() {
 }
 
 func (controller *MainController) Room() {
-	controller.TplName = "room.tpl"
+	controller.TplName = "room.html"
 
 	roomName := controller.Ctx.Input.Param(":id")
 	sess := controller.GetSession(roomName)
@@ -48,7 +48,7 @@ func (controller *MainController) Room() {
 }
 
 func (controller *MainController) Messages() {
-	controller.TplName = "room.tpl"
+	controller.TplName = "room.html"
 	if controller.Ctx.Input.Method() == "POST" {
 		messages = append(messages, controller.GetString("message"))
 	}

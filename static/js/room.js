@@ -13,13 +13,13 @@ $(document).ready(function() {
       $('#chat-history').html(result);
     })
   }
-  $('#submit-btn').click(function() {
+  $('#submit-btn').click(function(e) {
+    e.preventDefault();
     var message = $("#input").val();
-    console.log('message:', message);
+    $("#input").val('');
     $.post("/messages", {
       message: message
     });
-    console.log('posted');
   });
   setInterval(fetch, 3000);
 });

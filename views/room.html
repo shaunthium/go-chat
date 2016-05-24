@@ -1,0 +1,13 @@
+{{template "base/base.html" .}}
+{{define "head"}}
+  <title>Room</title>
+{{end}}
+{{define "body"}}
+  <div>
+    <ul id="chat-history"></ul>
+  </div>
+  <form>
+    <input type="text" name="input" id="input">
+    <input type="submit" value="Enter" id="submit-btn">
+  </form>
+{{end}}
