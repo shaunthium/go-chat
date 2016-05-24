@@ -1,6 +1,15 @@
 package controllers
 
-import "github.com/astaxie/beego"
+import (
+	"fmt"
+
+	"github.com/astaxie/beego"
+)
+
+var (
+	sendChannel    = make(chan string)
+	receiveChannel = make(chan string)
+)
 
 type MainController struct {
 	beego.Controller
@@ -42,9 +51,22 @@ func (controller *MainController) Room() {
 			controller.Redirect("/", 302)
 		}
 		controller.Data["Pass"] = roomName
+		go chat()
 	}
 
 	if controller.Ctx.Input.Method() == "POST" {
-		controller.Data["Text"] = controller.GetString("input")
+		sendChannel <- controller.GetString("input")
+		return
+	}
+}
+
+func chat() {
+	for {
+		select {
+		case receivedMessage := <-sendChannel:
+			fmt.Println("received message:" + receivedMessage)
+		case sentMessage := <-receiveChannel:
+			fmt.Println("sent message:" + sentMessage)
+		}
 	}
 }
