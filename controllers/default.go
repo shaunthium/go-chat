@@ -6,39 +6,45 @@ type MainController struct {
 	beego.Controller
 }
 
-func (c *MainController) Get() {
-	c.TplName = "index.tpl"
+func (controller *MainController) Get() {
+	controller.TplName = "index.tpl"
 }
 
-func (c *MainController) Create() {
-	c.TplName = "create.tpl"
+func (controller *MainController) Create() {
+	controller.TplName = "create.tpl"
 
-	if c.Ctx.Input.Method() == "POST" {
-		sessName := c.GetString("name")
-		sessPass := c.GetString("password")
-		c.SetSession(sessName, sessPass)
-		c.Redirect("/room/"+sessName, 302)
+	if controller.Ctx.Input.Method() == "POST" {
+		sessName := controller.GetString("name")
+		sessPass := controller.GetString("password")
+		controller.SetSession(sessName, sessPass)
+		controller.Redirect("/room/"+sessName, 302)
 	}
 }
 
-func (c *MainController) Join() {
-	c.TplName = "join.tpl"
+func (controller *MainController) Join() {
+	controller.TplName = "join.tpl"
 
-	if c.Ctx.Input.Method() == "POST" {
-		sessName := c.GetString("name")
-		sessPass := c.GetString("password")
-		c.SetSession(sessName, sessPass)
-		c.Redirect("/room/"+sessName, 302)
+	if controller.Ctx.Input.Method() == "POST" {
+		sessName := controller.GetString("name")
+		sessPass := controller.GetString("password")
+		controller.SetSession(sessName, sessPass)
+		controller.Redirect("/room/"+sessName, 302)
 	}
 }
 
-func (c *MainController) Room() {
-	c.TplName = "room.tpl"
+func (controller *MainController) Room() {
+	controller.TplName = "room.tpl"
 
-	roomName := c.Ctx.Input.Param(":id")
-	sess := c.GetSession(roomName)
-	if sess == nil {
-		c.Redirect("/", 302)
+	if controller.Ctx.Input.Method() == "GET" {
+		roomName := controller.Ctx.Input.Param(":id")
+		sess := controller.GetSession(roomName)
+		if sess == nil {
+			controller.Redirect("/", 302)
+		}
+		controller.Data["Pass"] = roomName
 	}
-	c.Data["Pass"] = roomName
+
+	if controller.Ctx.Input.Method() == "POST" {
+		controller.Data["Text"] = controller.GetString("input")
+	}
 }

@@ -5,6 +5,12 @@
     <title>Room {{.Pass}}</title>
   </head>
   <body>
-    Room here
+    {{if .Text}}
+      <span>{{.Text}}</span>
+    {{end}}
+    <form method="POST">
+      <input type="text" name="input">
+      <input type="submit" value="Enter">
+    </form>
   </body>
 </html>
