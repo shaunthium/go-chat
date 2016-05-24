@@ -9,6 +9,7 @@ import (
 var (
 	sendChannel    = make(chan string)
 	receiveChannel = make(chan string)
+	messages       = make([]string, 20)
 )
 
 type MainController struct {
@@ -44,19 +45,25 @@ func (controller *MainController) Join() {
 func (controller *MainController) Room() {
 	controller.TplName = "room.tpl"
 
-	if controller.Ctx.Input.Method() == "GET" {
-		roomName := controller.Ctx.Input.Param(":id")
-		sess := controller.GetSession(roomName)
-		if sess == nil {
-			controller.Redirect("/", 302)
-		}
-		controller.Data["Pass"] = roomName
-		go chat()
+	roomName := controller.Ctx.Input.Param(":id")
+	sess := controller.GetSession(roomName)
+	if sess == nil {
+		controller.Redirect("/", 302)
 	}
+	controller.Data["Pass"] = roomName
+	// go chat()
+}
 
+func (controller *MainController) Messages() {
+	controller.TplName = "room.tpl"
 	if controller.Ctx.Input.Method() == "POST" {
-		sendChannel <- controller.GetString("input")
-		return
+		// sendChannel <- controller.GetString("input")
+		messages = append(messages, controller.GetString("input"))
+	}
+	if controller.Ctx.Input.Method() == "GET" {
+		fmt.Printf("messages is:" + messages[0])
+		controller.Data["json"] = messages
+		controller.ServeJSON()
 	}
 }
 
@@ -65,8 +72,7 @@ func chat() {
 		select {
 		case receivedMessage := <-sendChannel:
 			fmt.Println("received message:" + receivedMessage)
-		case sentMessage := <-receiveChannel:
-			fmt.Println("sent message:" + sentMessage)
+			receiveChannel <- receivedMessage
 		}
 	}
 }
