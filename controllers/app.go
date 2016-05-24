@@ -1,15 +1,9 @@
 package controllers
 
-import (
-	"fmt"
-
-	"github.com/astaxie/beego"
-)
+import "github.com/astaxie/beego"
 
 var (
-	sendChannel    = make(chan string)
-	receiveChannel = make(chan string)
-	messages       = make([]string, 20)
+	messages = make([]string, 20)
 )
 
 type MainController struct {
@@ -51,28 +45,15 @@ func (controller *MainController) Room() {
 		controller.Redirect("/", 302)
 	}
 	controller.Data["Pass"] = roomName
-	// go chat()
 }
 
 func (controller *MainController) Messages() {
 	controller.TplName = "room.tpl"
 	if controller.Ctx.Input.Method() == "POST" {
-		// sendChannel <- controller.GetString("input")
-		messages = append(messages, controller.GetString("input"))
+		messages = append(messages, controller.GetString("message"))
 	}
 	if controller.Ctx.Input.Method() == "GET" {
-		fmt.Printf("messages is:" + messages[0])
 		controller.Data["json"] = messages
 		controller.ServeJSON()
-	}
-}
-
-func chat() {
-	for {
-		select {
-		case receivedMessage := <-sendChannel:
-			fmt.Println("received message:" + receivedMessage)
-			receiveChannel <- receivedMessage
-		}
 	}
 }
