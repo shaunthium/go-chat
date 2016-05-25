@@ -13,10 +13,14 @@
   width: 50%;
 }
 
-#room-input-div {
-  width: 80%;
+#room--div--container {
+  margin-top: 7em;
+  
+  #room--div--input {
+    width: 85%;
 
-  .form-control {
-    width: 100%;  
+    .form-control {
+      width: 100%;
+    }
   }
 }
