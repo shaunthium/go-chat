@@ -3,6 +3,12 @@
   <title>Go-Chat!</title>
 {{end}}
 {{define "body"}}
+  {{if .flash.error}}
+    <div class="alert alert-danger">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      {{.flash.error}}
+    </div>
+  {{end}}
   <div class="container-fluid text-center">
     <div id="div-index">
       <a class="btn btn-primary" href="/create">Create Room</a>

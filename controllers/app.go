@@ -8,6 +8,7 @@ const (
 
 var (
 	messages = make([]string, 20)
+	rooms    = make([]string, 20)
 )
 
 // MainController is the main controller for the app
@@ -15,9 +16,19 @@ type MainController struct {
 	beego.Controller
 }
 
+func contains(rooms []string, roomName string) bool {
+	for _, name := range rooms {
+		if name == roomName {
+			return true
+		}
+	}
+	return false
+}
+
 // Get method for index page
 func (controller *MainController) Get() {
 	controller.TplName = "index.html"
+	beego.ReadFromRequest(&controller.Controller)
 }
 
 // Create method for creating rooms
@@ -25,9 +36,9 @@ func (controller *MainController) Create() {
 	controller.TplName = "create.html"
 
 	if controller.Ctx.Input.Method() == httpMethodPOST {
-		sessName := controller.GetString("name")
-		controller.SetSession(sessName, "")
-		controller.Redirect("/room/"+sessName, 302)
+		sessionName := controller.GetString("name")
+		controller.SetSession(sessionName, "")
+		controller.Redirect("/room/"+sessionName, 302)
 	}
 }
 
@@ -36,9 +47,16 @@ func (controller *MainController) Join() {
 	controller.TplName = "join.html"
 
 	if controller.Ctx.Input.Method() == httpMethodPOST {
-		sessName := controller.GetString("name")
-		controller.SetSession(sessName, "")
-		controller.Redirect("/room/"+sessName, 302)
+		roomName := controller.GetString("name")
+		if contains(rooms, roomName) {
+			controller.SetSession(roomName, "")
+			controller.Redirect("/room/"+roomName, 302)
+		} else {
+			flash := beego.NewFlash()
+			flash.Error("No such room found!")
+			flash.Store(&controller.Controller)
+			controller.Redirect("/", 302)
+		}
 	}
 }
 
