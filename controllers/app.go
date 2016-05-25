@@ -1,15 +1,26 @@
 package controllers
 
-import "github.com/astaxie/beego"
+import (
+	"fmt"
+
+	"github.com/astaxie/beego"
+)
 
 const (
-	httpMethodPOST = "POST"
+	METHOD_POST = "POST"
+	METHOD_GET  = "GET"
 )
 
 var (
-	messages = make([]string, 20)
+	messages = make([]Message, 0, 0)
 	rooms    = make([]string, 20)
 )
+
+// Message struct represents a data type containing data about each message
+type Message struct {
+	Sender  string `json:"sender"`
+	Content string `json:"content"`
+}
 
 // MainController is the main controller for the app
 type MainController struct {
@@ -35,10 +46,12 @@ func (controller *MainController) Get() {
 func (controller *MainController) Create() {
 	controller.TplName = "create.html"
 
-	if controller.Ctx.Input.Method() == httpMethodPOST {
-		roomName := controller.GetString("name")
+	if controller.Ctx.Input.Method() == METHOD_POST {
+		roomName := controller.GetString("room-name")
+		username := controller.GetString("username")
 		temp := make(map[string]interface{})
 		temp["roomName"] = roomName
+		temp["username"] = username
 		controller.SetSession(roomName, temp)
 		rooms = append(rooms, roomName)
 		controller.Redirect("/room/"+roomName, 302)
@@ -49,11 +62,13 @@ func (controller *MainController) Create() {
 func (controller *MainController) Join() {
 	controller.TplName = "join.html"
 
-	if controller.Ctx.Input.Method() == httpMethodPOST {
+	if controller.Ctx.Input.Method() == METHOD_POST {
 		roomName := controller.GetString("name")
 		if contains(rooms, roomName) {
 			temp := make(map[string]interface{})
+			username := controller.GetString("username")
 			temp["roomName"] = roomName
+			temp["username"] = username
 			controller.SetSession(roomName, temp)
 			controller.Redirect("/room/"+roomName, 302)
 		} else {
@@ -83,17 +98,25 @@ func (controller *MainController) Room() {
 		flash.Error("If you know this room exists, please click the 'Join Room' button.")
 		flash.Store(&controller.Controller)
 		controller.Redirect("/", 302)
-		return
+	} else {
+		controller.Data["username"] = temp["username"].(string)
 	}
 }
 
 // Messages method, used as an API
 func (controller *MainController) Messages() {
 	controller.TplName = "room.html"
-	if controller.Ctx.Input.Method() == httpMethodPOST {
-		messages = append(messages, controller.GetString("message"))
+	if controller.Ctx.Input.Method() == METHOD_POST {
+		// Add message to history
+		sender := controller.GetString("sender")
+		content := controller.GetString("content")
+		message := Message{sender, content}
+		messages = append(messages, message)
+		for _, message := range messages {
+			fmt.Printf("message is: " + message.Content)
+		}
 	}
-	if controller.Ctx.Input.Method() == "GET" {
+	if controller.Ctx.Input.Method() == METHOD_GET {
 		controller.Data["json"] = messages
 		controller.ServeJSON()
 	}

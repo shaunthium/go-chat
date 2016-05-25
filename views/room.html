@@ -6,7 +6,9 @@
   <div class="row" id="room--div--container">
     <div class="col-md-offset-3 col-md-6">
       <div class="jumbotron">
-        <ul id="chat-history"></ul>
+        <ul
+          class="list-unstyled"
+          id="chat-history"></ul>
       </div>
 
       <form class="form-inline">
@@ -19,4 +21,5 @@
       </form>
     </div>
   </div>
+  <span style='display: none' id='username'>{{.username}}</span>
 {{end}}
