@@ -15,7 +15,7 @@ func (controller *MainController) Get() {
 }
 
 func (controller *MainController) Create() {
-	controller.TplName = "create.tpl"
+	controller.TplName = "create.html"
 
 	if controller.Ctx.Input.Method() == "POST" {
 		sessName := controller.GetString("name")
@@ -26,7 +26,7 @@ func (controller *MainController) Create() {
 }
 
 func (controller *MainController) Join() {
-	controller.TplName = "join.tpl"
+	controller.TplName = "join.html"
 
 	if controller.Ctx.Input.Method() == "POST" {
 		sessName := controller.GetString("name")
