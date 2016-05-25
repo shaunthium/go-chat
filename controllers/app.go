@@ -36,9 +36,10 @@ func (controller *MainController) Create() {
 	controller.TplName = "create.html"
 
 	if controller.Ctx.Input.Method() == httpMethodPOST {
-		sessionName := controller.GetString("name")
-		controller.SetSession(sessionName, "")
-		controller.Redirect("/room/"+sessionName, 302)
+		roomName := controller.GetString("name")
+		controller.SetSession(roomName, "")
+		rooms = append(rooms, roomName)
+		controller.Redirect("/room/"+roomName, 302)
 	}
 }
 
