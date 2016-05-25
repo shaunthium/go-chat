@@ -2,12 +2,14 @@ $(document).ready(function() {
   function fetch() {
     $.getJSON("/messages", function(data) {
       var result = "";
+      console.log('data is', data);
       for (var i=data.length-1; i>=0; i--) {
         var temp = data[i];
-        if (temp == '') {
+        if (temp.content == '') {
           break;
         } else {
-          result += "<li>" + temp + "</li>";
+          result +=
+            "<li><b>" + temp.sender + ": " + "</b>" + temp.content + "</li>";
         }
       }
       $('#chat-history').html(result);
@@ -15,10 +17,12 @@ $(document).ready(function() {
   }
   $('#submit-btn').click(function(e) {
     e.preventDefault();
-    var message = $("#input").val();
+    var content = $("#input").val();
     $("#input").val('');
+    var username = $('#username').text();
     $.post("/messages", {
-      message: message
+      content: content,
+      sender: username
     });
   });
   setInterval(fetch, 3000);
