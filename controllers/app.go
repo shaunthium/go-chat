@@ -37,7 +37,9 @@ func (controller *MainController) Create() {
 
 	if controller.Ctx.Input.Method() == httpMethodPOST {
 		roomName := controller.GetString("name")
-		controller.SetSession(roomName, "")
+		temp := make(map[string]interface{})
+		temp["roomName"] = roomName
+		controller.SetSession(roomName, temp)
 		rooms = append(rooms, roomName)
 		controller.Redirect("/room/"+roomName, 302)
 	}
@@ -50,7 +52,9 @@ func (controller *MainController) Join() {
 	if controller.Ctx.Input.Method() == httpMethodPOST {
 		roomName := controller.GetString("name")
 		if contains(rooms, roomName) {
-			controller.SetSession(roomName, "")
+			temp := make(map[string]interface{})
+			temp["roomName"] = roomName
+			controller.SetSession(roomName, temp)
 			controller.Redirect("/room/"+roomName, 302)
 		} else {
 			flash := beego.NewFlash()
@@ -66,11 +70,21 @@ func (controller *MainController) Room() {
 	controller.TplName = "room.html"
 
 	roomName := controller.Ctx.Input.Param(":id")
-	sess := controller.GetSession(roomName)
-	if sess == nil {
-		controller.Redirect("/", 302)
+	session := controller.GetSession(roomName)
+	temp := make(map[string]interface{})
+	sessionRoomName := ""
+	if session != nil {
+		temp = session.(map[string]interface{})
+		sessionRoomName = temp["roomName"].(string)
 	}
-	controller.Data["Pass"] = roomName
+	if session == nil || sessionRoomName != roomName {
+		// Check that session exists
+		flash := beego.NewFlash()
+		flash.Error("If you know this room exists, please click the 'Join Room' button.")
+		flash.Store(&controller.Controller)
+		controller.Redirect("/", 302)
+		return
+	}
 }
 
 // Messages method, used as an API
