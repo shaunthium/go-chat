@@ -3,6 +3,7 @@ $(document).ready(function() {
   var roomName = $('#roomName').text();
   function fetch() {
     $.getJSON("/messages", {roomName: roomName}, function(data) {
+      if (data == null) return;
       var result = "";
       for (var i=0; i<data.length; i++) {
         var temp = data[i];
