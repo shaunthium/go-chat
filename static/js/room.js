@@ -1,16 +1,13 @@
 $(document).ready(function() {
+  var username = $('#username').text();
+  var roomName = $('#roomName').text();
   function fetch() {
-    $.getJSON("/messages", function(data) {
+    $.getJSON("/messages", {roomName: roomName}, function(data) {
       var result = "";
-      console.log('data is', data);
-      for (var i=data.length-1; i>=0; i--) {
+      for (var i=0; i<data.length; i++) {
         var temp = data[i];
-        if (temp.content == '') {
-          break;
-        } else {
-          result +=
-            "<li><b>" + temp.sender + ": " + "</b>" + temp.content + "</li>";
-        }
+        result +=
+          "<li><b>" + temp.sender + ": " + "</b>" + temp.content + "</li>";
       }
       $('#chat-history').html(result);
     })
@@ -19,10 +16,10 @@ $(document).ready(function() {
     e.preventDefault();
     var content = $("#input").val();
     $("#input").val('');
-    var username = $('#username').text();
     $.post("/messages", {
       content: content,
-      sender: username
+      sender: username,
+      roomName: roomName
     });
   });
   fetch();

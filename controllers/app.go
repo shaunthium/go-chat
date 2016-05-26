@@ -10,7 +10,8 @@ const (
 )
 
 var (
-	messages = make([]Message, 0, 0)
+	// messages = make([]Message, 0, 0)
+	messages = make(map[string][]Message)
 	rooms    = make([]string, 20)
 )
 
@@ -25,6 +26,7 @@ type MainController struct {
 	beego.Controller
 }
 
+// Checks if the supplied room name exists in the 'room' array
 func contains(rooms []string, roomName string) bool {
 	for _, name := range rooms {
 		if name == roomName {
@@ -52,6 +54,7 @@ func (controller *MainController) Create() {
 		temp["username"] = username
 		controller.SetSession(roomName, temp)
 		rooms = append(rooms, roomName)
+		messages[roomName] = make([]Message, 0, 0)
 		controller.Redirect("/room/"+roomName, 302)
 	}
 }
@@ -98,21 +101,23 @@ func (controller *MainController) Room() {
 		controller.Redirect("/", 302)
 	} else {
 		controller.Data["username"] = temp["username"].(string)
+		controller.Data["roomName"] = temp["roomName"].(string)
 	}
 }
 
 // Messages method, used as an API
 func (controller *MainController) Messages() {
 	controller.TplName = "room.html"
+	roomName := controller.GetString("roomName")
 	if controller.Ctx.Input.Method() == METHOD_POST {
 		// Add message to history
 		sender := controller.GetString("sender")
 		content := controller.GetString("content")
 		message := Message{sender, content}
-		messages = append(messages, message)
+		messages[roomName] = append(messages[roomName], message)
 	}
 	if controller.Ctx.Input.Method() == METHOD_GET {
-		controller.Data["json"] = messages
+		controller.Data["json"] = messages[roomName]
 		controller.ServeJSON()
 	}
 }
