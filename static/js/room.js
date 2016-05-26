@@ -25,5 +25,6 @@ $(document).ready(function() {
       sender: username
     });
   });
-  setInterval(fetch, 3000);
+  fetch();
+  setInterval(fetch, 1000);
 });

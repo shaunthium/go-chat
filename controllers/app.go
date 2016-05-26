@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"fmt"
-
 	"github.com/astaxie/beego"
 )
 
@@ -112,9 +110,6 @@ func (controller *MainController) Messages() {
 		content := controller.GetString("content")
 		message := Message{sender, content}
 		messages = append(messages, message)
-		for _, message := range messages {
-			fmt.Printf("message is: " + message.Content)
-		}
 	}
 	if controller.Ctx.Input.Method() == METHOD_GET {
 		controller.Data["json"] = messages
