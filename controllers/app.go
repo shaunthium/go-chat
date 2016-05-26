@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/astaxie/beego"
 )
 
@@ -10,15 +12,21 @@ const (
 )
 
 var (
-	// messages = make([]Message, 0, 0)
-	messages = make(map[string][]Message)
-	rooms    = make([]string, 20)
+	_     = fmt.Printf
+	data  = make(map[string]RoomData)
+	rooms = make([]string, 20)
 )
 
 // Message struct represents a data type containing data about each message
 type Message struct {
 	Sender  string `json:"sender"`
 	Content string `json:"content"`
+}
+
+// RoomData represents data associated with a room
+type RoomData struct {
+	Messages        []Message
+	RemainingPeople int
 }
 
 // MainController is the main controller for the app
@@ -54,7 +62,7 @@ func (controller *MainController) Create() {
 		temp["username"] = username
 		controller.SetSession(roomName, temp)
 		rooms = append(rooms, roomName)
-		messages[roomName] = make([]Message, 0, 0)
+		data[roomName] = RoomData{make([]Message, 0, 0), 1}
 		controller.Redirect("/room/"+roomName, 302)
 	}
 }
@@ -70,7 +78,13 @@ func (controller *MainController) Join() {
 			username := controller.GetString("username")
 			temp["roomName"] = roomName
 			temp["username"] = username
+
+			// Set session with necessary data
 			controller.SetSession(roomName, temp)
+
+			// Increment number of people in the room
+			tempRoomData := data[roomName]
+			tempRoomData.RemainingPeople = tempRoomData.RemainingPeople + 1
 			controller.Redirect("/room/"+roomName, 302)
 		} else {
 			flash := beego.NewFlash()
@@ -100,8 +114,19 @@ func (controller *MainController) Room() {
 		flash.Store(&controller.Controller)
 		controller.Redirect("/", 302)
 	} else {
+		// Leave room when user navigates away from page
+		defer leaveRoom(roomName)
 		controller.Data["username"] = temp["username"].(string)
 		controller.Data["roomName"] = temp["roomName"].(string)
+	}
+}
+
+func leaveRoom(roomName string) {
+	temp := data[roomName]
+	temp.RemainingPeople = temp.RemainingPeople - 1
+	// Delete room data if no people are left in the room
+	if temp.RemainingPeople == 0 {
+		delete(data, roomName)
 	}
 }
 
@@ -114,10 +139,12 @@ func (controller *MainController) Messages() {
 		sender := controller.GetString("sender")
 		content := controller.GetString("content")
 		message := Message{sender, content}
-		messages[roomName] = append(messages[roomName], message)
+		temp := data[roomName]
+		temp.Messages = append(temp.Messages, message)
+		data[roomName] = temp
 	}
 	if controller.Ctx.Input.Method() == METHOD_GET {
-		controller.Data["json"] = messages[roomName]
+		controller.Data["json"] = data[roomName].Messages
 		controller.ServeJSON()
 	}
 }
