@@ -1,4 +1,4 @@
-// Comment
+// Comment for SASS auto-compiler
 #div-index {
   margin-top: 200px;
 
@@ -22,5 +22,12 @@
     .form-control {
       width: 100%;
     }
+  }
+}
+
+#room--div--container {
+  .jumbotron {
+    height: 300px !important;
+    overflow: scroll !important;
   }
 }
