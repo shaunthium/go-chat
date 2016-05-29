@@ -13,7 +13,7 @@ const (
 
 var (
 	_     = fmt.Printf // To prevent compiler complaining about unused imports
-	data  = make(map[string]RoomData)
+	data  = make(map[string]*RoomData)
 	rooms = make([]string, 20) // Contains name of every currently active room
 )
 
@@ -47,10 +47,7 @@ func (controller *MainController) Create() {
 	if controller.Ctx.Input.Method() == METHOD_POST {
 		roomName := controller.GetString("room-name")
 		if contains(rooms, roomName) {
-			flash := beego.NewFlash()
-			flash.Error("This room already exists.")
-			flash.Store(&controller.Controller)
-			controller.Redirect("/create", 302)
+			redirectWithError(controller, "This room already exists.", "/create")
 		} else {
 			username := controller.GetString("username")
 			temp := make(map[string]interface{})
@@ -58,7 +55,7 @@ func (controller *MainController) Create() {
 			temp["username"] = username
 			controller.SetSession(roomName, temp)
 			rooms = append(rooms, roomName)
-			data[roomName] = RoomData{make([]Message, 0, 0), 1}
+			data[roomName] = &RoomData{make([]Message, 0, 0), 1}
 			controller.Redirect("/room/"+roomName, 302)
 		}
 	}
@@ -84,10 +81,7 @@ func (controller *MainController) Join() {
 			tempRoomData.RemainingPeople = tempRoomData.RemainingPeople + 1
 			controller.Redirect("/room/"+roomName, 302)
 		} else {
-			flash := beego.NewFlash()
-			flash.Error("No such room found!")
-			flash.Store(&controller.Controller)
-			controller.Redirect("/", 302)
+			redirectWithError(controller, "No such room found!", "/")
 		}
 	}
 }
@@ -102,22 +96,15 @@ func (controller *MainController) Room() {
 		roomName := controller.Ctx.Input.Param(":id")
 		session := controller.GetSession(roomName)
 
+		errorMessage := "If you know this room exists, please click the 'Join Room' button."
 		if session == nil {
 			// Check that session exists
-			flash := beego.NewFlash()
-			flash.Error("If you know this room exists, please click the 'Join Room' button.")
-			flash.Store(&controller.Controller)
-			controller.Redirect("/", 302)
+			redirectWithError(controller, errorMessage, "/")
 		} else {
 			session := session.(map[string]interface{})
 			if session["roomName"].(string) != roomName {
-				flash := beego.NewFlash()
-				flash.Error("If you know this room exists, please click the 'Join Room' button.")
-				flash.Store(&controller.Controller)
-				controller.Redirect("/", 302)
+				redirectWithError(controller, errorMessage, "/")
 			}
-			// Leave room when user navigates away from page
-			// defer leaveRoom(roomName)
 			username := session["username"].(string)
 			controller.Data["username"] = username
 			controller.Data["roomName"] = roomName
@@ -139,6 +126,9 @@ func (controller *MainController) Messages() {
 		data[roomName] = temp
 	}
 	if controller.Ctx.Input.Method() == METHOD_GET {
+		if data[roomName] == nil {
+			return
+		}
 		controller.Data["json"] = data[roomName].Messages
 		controller.ServeJSON()
 	}

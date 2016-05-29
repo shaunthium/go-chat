@@ -3,6 +3,8 @@ package controllers
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/astaxie/beego"
 )
 
 var (
@@ -34,12 +36,27 @@ func deleteRoom(rooms []string, roomName string) []string {
 	return newRooms
 }
 
+// Redirects to index page and shows flash error
+func redirectWithError(controller *MainController,
+	errorMessage string,
+	path string) {
+
+	flash := beego.NewFlash()
+	flash.Error(errorMessage)
+	flash.Store(&controller.Controller)
+	controller.Redirect(path, 302)
+}
+
+// Leaves room specified by room name
 func leaveRoom(roomName string) {
 	temp := data[roomName]
+	if temp == nil {
+		return
+	}
 	temp.RemainingPeople = temp.RemainingPeople - 1
 	// Delete room data and room if no people are left in the room
 	if temp.RemainingPeople == 0 {
-		delete(data, roomName)
+		data[roomName] = nil
 		rooms = deleteRoom(rooms, roomName)
 	}
 }
