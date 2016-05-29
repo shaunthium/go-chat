@@ -1,5 +1,15 @@
 package controllers
 
+import (
+	"fmt"
+	"strconv"
+)
+
+var (
+	_ = fmt.Printf
+	_ = strconv.Atoi
+)
+
 // Checks if the supplied room name exists in the 'room' array
 func contains(rooms []string, roomName string) bool {
 	for _, name := range rooms {
@@ -30,6 +40,6 @@ func leaveRoom(roomName string) {
 	// Delete room data and room if no people are left in the room
 	if temp.RemainingPeople == 0 {
 		delete(data, roomName)
-		// rooms = deleteRoom(rooms, roomName)
+		rooms = deleteRoom(rooms, roomName)
 	}
 }

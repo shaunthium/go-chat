@@ -95,26 +95,33 @@ func (controller *MainController) Join() {
 // Room method representing a chat room
 func (controller *MainController) Room() {
 	controller.TplName = "room.html"
+	if controller.Ctx.Input.Method() == METHOD_POST {
+		roomName := controller.GetString("roomName")
+		leaveRoom(roomName)
+	} else if controller.Ctx.Input.Method() == METHOD_GET {
+		roomName := controller.Ctx.Input.Param(":id")
+		session := controller.GetSession(roomName)
 
-	roomName := controller.Ctx.Input.Param(":id")
-	session := controller.GetSession(roomName)
-	temp := make(map[string]interface{})
-	sessionRoomName := ""
-	if session != nil {
-		temp = session.(map[string]interface{})
-		sessionRoomName = temp["roomName"].(string)
-	}
-	if session == nil || sessionRoomName != roomName {
-		// Check that session exists
-		flash := beego.NewFlash()
-		flash.Error("If you know this room exists, please click the 'Join Room' button.")
-		flash.Store(&controller.Controller)
-		controller.Redirect("/", 302)
-	} else {
-		// Leave room when user navigates away from page
-		defer leaveRoom(roomName)
-		controller.Data["username"] = temp["username"].(string)
-		controller.Data["roomName"] = temp["roomName"].(string)
+		if session == nil {
+			// Check that session exists
+			flash := beego.NewFlash()
+			flash.Error("If you know this room exists, please click the 'Join Room' button.")
+			flash.Store(&controller.Controller)
+			controller.Redirect("/", 302)
+		} else {
+			session := session.(map[string]interface{})
+			if session["roomName"].(string) != roomName {
+				flash := beego.NewFlash()
+				flash.Error("If you know this room exists, please click the 'Join Room' button.")
+				flash.Store(&controller.Controller)
+				controller.Redirect("/", 302)
+			}
+			// Leave room when user navigates away from page
+			// defer leaveRoom(roomName)
+			username := session["username"].(string)
+			controller.Data["username"] = username
+			controller.Data["roomName"] = roomName
+		}
 	}
 }
 

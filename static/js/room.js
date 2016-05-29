@@ -1,6 +1,15 @@
 $(document).ready(function() {
   var username = $('#username').text();
   var roomName = $('#roomName').text();
+  $(window).unload(function() {
+    // Ensure that ajax request completes before leaving
+    $.ajaxSetup({
+      async: false
+    });
+    $.post("/room/" + roomName, {
+      roomName: roomName
+    });
+  });
   function fetch() {
     $.getJSON("/messages", {roomName: roomName}, function(data) {
       if (data == null) return;
