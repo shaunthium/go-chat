@@ -27,7 +27,12 @@
 
 #room--div--container {
   .jumbotron {
-    height: 300px !important;
-    overflow: scroll !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
   }
+}
+
+#chat-history {
+  height: 200px !important;
+  overflow: scroll !important;
 }

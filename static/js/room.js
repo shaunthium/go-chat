@@ -19,13 +19,16 @@ $(document).ready(function() {
         result +=
           "<li><b>" + temp.sender + ": " + "</b>" + temp.content + "</li>";
       }
-      $('#chat-history').html(result);
+      var chatHistory = $('#chat-history');
+      chatHistory.html(result);
+      // chatHistory[0].scrollTop = chatHistory[0].scrollHeight;
     })
   }
   $('#submit-btn').click(function(e) {
     e.preventDefault();
-    var content = $("#input").val();
-    $("#input").val('');
+    var input = $("#input");
+    var content = input.val();
+    input.val('');
     $.post("/messages", {
       content: content,
       sender: username,
