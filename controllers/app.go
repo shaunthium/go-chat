@@ -43,17 +43,24 @@ func (controller *MainController) Get() {
 // Create method for creating rooms
 func (controller *MainController) Create() {
 	controller.TplName = "create.html"
-
+	beego.ReadFromRequest(&controller.Controller)
 	if controller.Ctx.Input.Method() == METHOD_POST {
 		roomName := controller.GetString("room-name")
-		username := controller.GetString("username")
-		temp := make(map[string]interface{})
-		temp["roomName"] = roomName
-		temp["username"] = username
-		controller.SetSession(roomName, temp)
-		rooms = append(rooms, roomName)
-		data[roomName] = RoomData{make([]Message, 0, 0), 1}
-		controller.Redirect("/room/"+roomName, 302)
+		if contains(rooms, roomName) {
+			flash := beego.NewFlash()
+			flash.Error("This room already exists.")
+			flash.Store(&controller.Controller)
+			controller.Redirect("/create", 302)
+		} else {
+			username := controller.GetString("username")
+			temp := make(map[string]interface{})
+			temp["roomName"] = roomName
+			temp["username"] = username
+			controller.SetSession(roomName, temp)
+			rooms = append(rooms, roomName)
+			data[roomName] = RoomData{make([]Message, 0, 0), 1}
+			controller.Redirect("/room/"+roomName, 302)
+		}
 	}
 }
 

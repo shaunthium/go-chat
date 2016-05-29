@@ -3,6 +3,12 @@
     <title>Create room</title>
 {{end}}
 {{define "body"}}
+  {{if .flash.error}}
+    <div class="alert alert-danger">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      {{.flash.error}}
+    </div>
+  {{end}}
   <form method="POST">
     <div class="form-group">
       <label for="room-name">Room name:</label>
