@@ -91,9 +91,21 @@ func (controller *MainController) Room() {
 	controller.TplName = "room.html"
 	if controller.Ctx.Input.Method() == METHOD_POST {
 		roomName := controller.GetString("roomName")
+		if data[roomName] == nil {
+			redirectWithError(controller,
+				"Your room has expired. Please create or join another.",
+				"/")
+			return
+		}
 		leaveRoom(roomName)
 	} else if controller.Ctx.Input.Method() == METHOD_GET {
 		roomName := controller.Ctx.Input.Param(":id")
+		if data[roomName] == nil {
+			redirectWithError(controller,
+				"Your room has expired. Please create or join another.",
+				"/")
+			return
+		}
 		session := controller.GetSession(roomName)
 
 		errorMessage := "If you know this room exists, please click the 'Join Room' button."
@@ -104,6 +116,7 @@ func (controller *MainController) Room() {
 			session := session.(map[string]interface{})
 			if session["roomName"].(string) != roomName {
 				redirectWithError(controller, errorMessage, "/")
+				return
 			}
 			username := session["username"].(string)
 			controller.Data["username"] = username
@@ -116,20 +129,23 @@ func (controller *MainController) Room() {
 func (controller *MainController) Messages() {
 	controller.TplName = "room.html"
 	roomName := controller.GetString("roomName")
-	if controller.Ctx.Input.Method() == METHOD_POST {
-		// Add message to history
-		sender := controller.GetString("sender")
-		content := controller.GetString("content")
-		message := Message{sender, content}
-		temp := data[roomName]
-		temp.Messages = append(temp.Messages, message)
-		data[roomName] = temp
-	}
-	if controller.Ctx.Input.Method() == METHOD_GET {
-		if data[roomName] == nil {
-			return
+	if data[roomName] == nil {
+		redirectWithError(controller,
+			"Your room has expired. Please create or join another.",
+			"/")
+	} else {
+		if controller.Ctx.Input.Method() == METHOD_POST {
+			// Add message to history
+			sender := controller.GetString("sender")
+			content := controller.GetString("content")
+			message := Message{sender, content}
+			temp := data[roomName]
+			temp.Messages = append(temp.Messages, message)
+			data[roomName] = temp
 		}
-		controller.Data["json"] = data[roomName].Messages
-		controller.ServeJSON()
+		if controller.Ctx.Input.Method() == METHOD_GET {
+			controller.Data["json"] = data[roomName].Messages
+			controller.ServeJSON()
+		}
 	}
 }
