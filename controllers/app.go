@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	_     = fmt.Printf
+	_     = fmt.Printf // To prevent compiler complaining about unused imports
 	data  = make(map[string]RoomData)
 	rooms = make([]string, 20)
 )
@@ -32,16 +32,6 @@ type RoomData struct {
 // MainController is the main controller for the app
 type MainController struct {
 	beego.Controller
-}
-
-// Checks if the supplied room name exists in the 'room' array
-func contains(rooms []string, roomName string) bool {
-	for _, name := range rooms {
-		if name == roomName {
-			return true
-		}
-	}
-	return false
 }
 
 // Get method for index page
@@ -118,15 +108,6 @@ func (controller *MainController) Room() {
 		defer leaveRoom(roomName)
 		controller.Data["username"] = temp["username"].(string)
 		controller.Data["roomName"] = temp["roomName"].(string)
-	}
-}
-
-func leaveRoom(roomName string) {
-	temp := data[roomName]
-	temp.RemainingPeople = temp.RemainingPeople - 1
-	// Delete room data if no people are left in the room
-	if temp.RemainingPeople == 0 {
-		delete(data, roomName)
 	}
 }
 
