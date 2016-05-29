@@ -14,7 +14,7 @@ const (
 var (
 	_     = fmt.Printf // To prevent compiler complaining about unused imports
 	data  = make(map[string]RoomData)
-	rooms = make([]string, 20)
+	rooms = make([]string, 20) // Contains name of every currently active room
 )
 
 // Message struct represents a data type containing data about each message
